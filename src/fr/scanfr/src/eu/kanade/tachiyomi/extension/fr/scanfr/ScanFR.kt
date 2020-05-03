@@ -33,13 +33,13 @@ class ScanFR : ParsedHttpSource() {
 
     // Popular
 
-    /* OK */ override fun popularMangaRequest(page: Int): Request {
+    override fun popularMangaRequest(page: Int): Request {
         return GET("$baseUrl/filterList?page=$page&cat=&alpha=&sortBy=views&asc=false&author=&tag=", headers)
     }
 
-    /* OK */ override fun popularMangaSelector() = "div.media"
+    override fun popularMangaSelector() = "div.media"
 
-    /* OK */ override fun popularMangaFromElement(element: Element): SManga {
+    override fun popularMangaFromElement(element: Element): SManga {
         val manga = SManga.create()
         manga.title = element.select("a.chart-title strong").text().trim()
         manga.setUrlWithoutDomain(element.select("a.chart-title").attr("abs:href"))
@@ -51,22 +51,22 @@ class ScanFR : ParsedHttpSource() {
 
     // Latest
 
-    /* OK */ override fun latestUpdatesRequest(page: Int): Request {
+    override fun latestUpdatesRequest(page: Int): Request {
         return GET(baseUrl, headers)
     }
 
-    /* OK */ override fun latestUpdatesSelector() = ".mangalist .manga-item"
+    override fun latestUpdatesSelector() = ".mangalist .manga-item"
 
-    /* OK */ override fun latestUpdatesFromElement(element: Element): SManga = SManga.create().apply {
+    override fun latestUpdatesFromElement(element: Element): SManga = SManga.create().apply {
         title = element.select(".manga-heading a").text().trim()
         setUrlWithoutDomain(element.select(".manga-heading a").attr("abs:href"))
     }
 
-    /* OK */ override fun latestUpdatesNextPageSelector(): String? = null
+    override fun latestUpdatesNextPageSelector(): String? = null
 
     // Search
 
-    /* OK */ override fun fetchSearchManga(page: Int, query: String, filters: FilterList): Observable<MangasPage> {
+    override fun fetchSearchManga(page: Int, query: String, filters: FilterList): Observable<MangasPage> {
         return client.newCall(searchMangaRequest(page, query, filters))
             .asObservableSuccess()
             .map { response ->
@@ -74,13 +74,13 @@ class ScanFR : ParsedHttpSource() {
             }
     }
 
-    /* OK */ override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
+    override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
         val uri = Uri.parse("$baseUrl/search").buildUpon()
             .appendQueryParameter("query", query)
         return GET(uri.toString(), headers)
     }
 
-    /* OK */ private fun searchMangaParse(response: Response, query: String): MangasPage {
+    private fun searchMangaParse(response: Response, query: String): MangasPage {
         val jsonData = response.body()!!.string()
         val jsonObject = JSONObject(jsonData)
         val jsonArray = jsonObject.getJSONArray("suggestions")
@@ -98,15 +98,15 @@ class ScanFR : ParsedHttpSource() {
         return MangasPage(mangas, false)
     }
 
-    /* OK */ override fun searchMangaSelector() = throw Exception("Not used")
+    override fun searchMangaSelector() = throw Exception("Not used")
 
-    /* OK */ override fun searchMangaFromElement(element: Element): SManga = throw Exception("Not used")
+    override fun searchMangaFromElement(element: Element): SManga = throw Exception("Not used")
 
     override fun searchMangaNextPageSelector(): String? = null
 
     // Details
 
-    /* OK */ override fun mangaDetailsParse(document: Document): SManga {
+    override fun mangaDetailsParse(document: Document): SManga {
         val manga = SManga.create()
         manga.thumbnail_url = document.select("img.img-responsive").attr("abs:src")
         manga.description = document.select(".well p").text()
@@ -123,9 +123,9 @@ class ScanFR : ParsedHttpSource() {
 
     // Chapters
 
-    /* OK */ override fun chapterListSelector() = "ul.chapters888 li"
+    override fun chapterListSelector() = "ul.chapters888 li"
 
-    /* OK */ override fun chapterFromElement(element: Element): SChapter {
+    override fun chapterFromElement(element: Element): SChapter {
         val chapter = SChapter.create()
         chapter.name = element.select("h5").text().trim()
         chapter.setUrlWithoutDomain(element.select("a").attr("href"))
@@ -133,7 +133,7 @@ class ScanFR : ParsedHttpSource() {
         return chapter
     }
 
-    /* OK */ private fun parseDate(date: String): Long {
+    private fun parseDate(date: String): Long {
         if (date.isEmpty()) {
             return 0L
         }
